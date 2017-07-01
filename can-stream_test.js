@@ -6,6 +6,8 @@ var canStream = require('can-stream');
 
 QUnit.module('can-stream');
 
+// TODO: Ask why it does that?
+// Why Should it do that?
 test('Resolves to "toStream" function', function() {
 	var c = compute(0);
 	var obj;
@@ -27,7 +29,7 @@ test('Resolves to "toStream" function', function() {
 	};
 	streamInterface = canStream(streamImplementation);
 
-	var stream = streamInterface(c);
+	var stream = streamInterface.toStream(c);
 	QUnit.equal(obj, stream);
 
 });
@@ -555,7 +557,7 @@ test('Update the list to undefined', function() {
 				}
 			};
 		},
-		toCompute: function(makeStream, context) {},
+		toCompute: function(makeStream, context) {}
 	};
 	var canStreaming = canStream(canStreamInterface);
 
@@ -569,11 +571,25 @@ test('Update the list to undefined', function() {
 	map.fooList = null;
 });
 
+
+//TODO: ask why this is implamented to run without can-stream initalzed
+//TODO: this should be a extra helper or something like that ?
 test("toStreamFromEvent passes event and other arguments", 3, function(){
 	// test by testing toComputeFromEvent first
 	var myMap = new DefineMap({prop: "value"});
 
-	var c = canStream.toComputeFromEvent(myMap, "prop");
+	var c = canStream({
+		toStream: function(c) {
+			return {
+				onValue: function(callback) {
+					c.on('change', function() {
+						callback.apply(null, arguments);
+					});
+				}
+			};
+		},
+		toCompute: function(makeStream, context) {}
+	}).toComputeFromEvent(myMap, "prop");
 
 
 	c.on("change", function(ev, newVal){

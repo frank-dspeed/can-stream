@@ -31,3 +31,7 @@ doc/
 dist/
 
 .vscode/
+
+
+# Ignore package lock
+package-lock.json
